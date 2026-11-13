@@ -2,18 +2,23 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Puzzle Tubuh Mistik - Rekoleksi Misdinar</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Puzzle Tubuh Mistik</title>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap');
+
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-family: 'Poppins', sans-serif;
+      user-select: none;
+      -webkit-user-select: none;
     }
 
     body {
-      background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+      background-color: #1a253c;
+      background-image: linear-gradient(135deg, #141e30 0%, #243b55 100%);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
@@ -23,77 +28,96 @@
       padding: 20px;
     }
 
-    .container {
+    .panel {
       background: rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
       border-radius: 20px;
-      padding: 24px;
+      padding: 25px 15px;
       max-width: 400px;
       width: 100%;
       text-align: center;
-      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-      border: 1px solid rgba(255, 255, 255, 0.18);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
     }
 
     h1 {
-      font-size: 1.4rem;
-      margin-bottom: 8px;
-      color: #ffd700;
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #f6d365;
+      margin-bottom: 5px;
     }
 
     p.subtitle {
       font-size: 0.85rem;
-      color: #e0e0e0;
-      margin-bottom: 20px;
+      color: #d1d8e0;
+      margin-bottom: 25px;
     }
 
-    .board {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 6px;
-      width: 100%;
-      aspect-ratio: 1;
-      background: rgba(0, 0, 0, 0.2);
-      padding: 8px;
-      border-radius: 12px;
+    #puzzle-container {
+      position: relative;
+      width: 300px;
+      height: 300px;
+      margin: 0 auto;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 8px;
+      border: 2px solid rgba(255,255,255,0.1);
     }
 
     .tile {
+      position: absolute;
+      width: 96px;
+      height: 96px;
+      background-image: url('https://images.unsplash.com/photo-1548625361-ec853818e69d?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80');
       background-size: 300px 300px;
-      background-repeat: no-repeat;
       border-radius: 8px;
       cursor: pointer;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+      transition: transform 0.2s ease-out;
       display: flex;
       align-items: center;
       justify-content: center;
       font-weight: bold;
-      font-size: 1.2rem;
-      text-shadow: 0 2px 4px rgba(0,0,0,0.8);
-      transition: transform 0.1s ease;
-      background-color: #34495e;
+      font-size: 1.5rem;
+      color: rgba(255,255,255,0.9);
+      text-shadow: 1px 1px 3px #000;
     }
 
-    .tile:active {
-      transform: scale(0.95);
+    .empty-indicator {
+      position: absolute;
+      width: 96px;
+      height: 96px;
+      border: 2px dashed rgba(255, 255, 255, 0.4);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      color: rgba(255, 255, 255, 0.3);
+      z-index: 0;
     }
 
-    .tile.empty {
-      background: rgba(255, 255, 255, 0.05) !important;
-      border: 2px dashed rgba(255, 255, 255, 0.3);
-      cursor: default;
+    .btn-glow {
+      margin-top: 25px;
+      background: #e74c3c;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      font-size: 1rem;
+      font-weight: 600;
+      border-radius: 50px;
+      cursor: pointer;
+      width: 90%;
+      box-shadow: 0 4px 15px rgba(231, 76, 60, 0.4);
     }
 
     .modal {
       display: none;
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0, 0, 0, 0.85);
+      background: rgba(0, 0, 0, 0.9);
       z-index: 100;
-      flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 24px;
-      text-align: center;
+      padding: 20px;
     }
 
     .modal.active {
@@ -101,39 +125,160 @@
     }
 
     .modal-content {
-      background: #ffffff;
-      color: #333;
+      background: #fff;
+      color: #2c3e50;
       border-radius: 16px;
-      padding: 24px;
-      max-width: 350px;
-      animation: popIn 0.3s ease;
-    }
-
-    @keyframes popIn {
-      from { transform: scale(0.8); opacity: 0; }
-      to { transform: scale(1); opacity: 1; }
+      padding: 25px;
+      max-width: 320px;
+      text-align: center;
     }
 
     .modal h2 {
-      color: #c0392b;
+      color: #e74c3c;
       font-size: 1.3rem;
+      font-weight: 800;
       margin-bottom: 12px;
     }
 
     .modal p {
-      font-size: 0.95rem;
+      font-size: 0.9rem;
       line-height: 1.5;
-      color: #444;
       margin-bottom: 20px;
     }
 
-    .btn {
+    .btn-close {
       background: #27ae60;
       color: white;
       border: none;
-      padding: 12px 24px;
-      font-size: 0.95rem;
-      font-weight: bold;
+      padding: 10px 0;
+      font-size: 1rem;
+      font-weight: 600;
       border-radius: 8px;
       cursor: pointer;
-      width: 1
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <div class="panel">
+    <h1>🧩 Puzzle Altar</h1>
+    <p class="subtitle">Geser kepingan untuk menyusun gambar Altar Gereja!</p>
+
+    <div id="puzzle-container">
+      <div id="empty-indicator" class="empty-indicator">?</div>
+    </div>
+
+    <button class="btn-glow" onclick="showReflection()">Kenapa Gak Bisa Lengkap?</button>
+  </div>
+
+  <div class="modal" id="reflectionModal">
+    <div class="modal-content">
+      <h2>Kepingan yang Hilang Itu ADALAH KAMU!</h2>
+      <p>
+        Satu kepingan yang kosong membuat seluruh wajah Gereja tidak utuh.<br><br>
+        Ketika kamu pasif, malu, atau merasa tidak penting, <b>Tubuh Mistik Kristus kehilangan bagian terbaiknya.</b> Kehadiranmu di altar sangat berarti!
+      </p>
+      <button class="btn-close" onclick="closeReflection()">Saya Siap Terlibat!</button>
+    </div>
+  </div>
+
+  <script>
+    const container = document.getElementById('puzzle-container');
+    const emptyIndicator = document.getElementById('empty-indicator');
+    
+    const gridSize = 3;
+    const tileSize = 100;
+    const gap = 2;
+
+    let emptyPos = { x: 1, y: 1 };
+    let tiles = [];
+
+    function initPuzzle() {
+      let id = 0;
+      for (let row = 0; row < gridSize; row++) {
+        for (let col = 0; col < gridSize; col++) {
+          if (row === 1 && col === 1) {
+            updateElementPosition(emptyIndicator, col, row);
+            continue;
+          }
+
+          const tile = document.createElement('div');
+          tile.classList.add('tile');
+          
+          const bgX = -(col * 100);
+          const bgY = -(row * 100);
+          tile.style.backgroundPosition = bgX + 'px ' + bgY + 'px';
+          
+          id++;
+          tile.innerText = id;
+
+          const tileObj = { element: tile, x: col, y: row };
+
+          // Optimasi untuk layar sentuh (HP/iPad)
+          tile.onclick = function() { moveTile(tileObj); };
+          tile.ontouchstart = function(e) { e.preventDefault(); moveTile(tileObj); };
+
+          tiles.push(tileObj);
+          container.appendChild(tile);
+          updateElementPosition(tile, col, row);
+        }
+      }
+      shufflePuzzle();
+    }
+
+    function updateElementPosition(element, x, y) {
+      const posX = x * tileSize + gap;
+      const posY = y * tileSize + gap;
+      element.style.transform = 'translate(' + posX + 'px, ' + posY + 'px)';
+    }
+
+    function moveTile(tile) {
+      const isAdjacent = (Math.abs(tile.x - emptyPos.x) === 1 && tile.y === emptyPos.y) || 
+                         (Math.abs(tile.y - emptyPos.y) === 1 && tile.x === emptyPos.x);
+
+      if (isAdjacent) {
+        const oldX = tile.x;
+        const oldY = tile.y;
+
+        tile.x = emptyPos.x;
+        tile.y = emptyPos.y;
+        updateElementPosition(tile.element, tile.x, tile.y);
+
+        emptyPos.x = oldX;
+        emptyPos.y = oldY;
+        updateElementPosition(emptyIndicator, emptyPos.x, emptyPos.y);
+      }
+    }
+
+    function shufflePuzzle() {
+      for (let i = 0; i < 60; i++) {
+        const movableTiles = tiles.filter(function(tile) {
+          return (Math.abs(tile.x - emptyPos.x) === 1 && tile.y === emptyPos.y) || 
+                 (Math.abs(tile.y - emptyPos.y) === 1 && tile.x === emptyPos.x);
+        });
+        const randomTile = movableTiles[Math.floor(Math.random() * movableTiles.length)];
+        
+        const oldX = randomTile.x;
+        const oldY = randomTile.y;
+        randomTile.x = emptyPos.x;
+        randomTile.y = emptyPos.y;
+        emptyPos.x = oldX;
+        emptyPos.y = oldY;
+      }
+      
+      tiles.forEach(function(tile) { updateElementPosition(tile.element, tile.x, tile.y); });
+      updateElementPosition(emptyIndicator, emptyPos.x, emptyPos.y);
+    }
+
+    function showReflection() {
+      document.getElementById('reflectionModal').classList.add('active');
+    }
+
+    function closeReflection() {
+      document.getElementById('reflectionModal').classList.remove('active');
+    }
+
+    window.onload = initPuzzle;
+  </script>
+</body>
+</html>
